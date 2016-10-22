@@ -38,9 +38,9 @@ def subpage_urls(subpage_url, page_soup):
     # navbar = page_soup.select("div.lista_nav_middle")[0]
     last_page = int(page_soup.select("div.lista_nav_middle")[0].find_all("a")[1].string)
     pages = [
-        parse.urlencode({"pos": 0, "mode": (last_page-1)*10}),
-        parse.urlencode({"pos": (last_page-1)*10, "mode": 10}),
-        ]
+        parse.urlencode({"pos": 0, "mode": (last_page - 1) * 10}),
+        parse.urlencode({"pos": (last_page - 1) * 10, "mode": 10}),
+    ]
     splitted = parse.urlsplit(subpage_url)
     return [
         parse.urlunsplit((splitted.scheme, splitted.netloc, splitted.path, item, splitted.fragment)) for item in pages
