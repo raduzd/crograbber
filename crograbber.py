@@ -3,6 +3,7 @@
 __author__ = 'raduz'
 
 from libcrograbber import croparser
+from libcrograbber import url_downloader
 import argparse
 
 
@@ -42,11 +43,10 @@ def main():
         articles = process_sub_page(argparser.url)
     else:
         articles = [process_article(argparser.url)]
-    # DEBUG
-    if not argparser.download:
-        for item in articles:
-            print(item["description"])
-    # /DEBUG
+    if argparser.download:
+        for article in articles:
+            url_downloader.download_audio_for_article(article)
+
 
 if __name__ == "__main__":
     main()
