@@ -4,6 +4,9 @@ __author__ = 'raduz'
 
 import pycurl
 
-class URLDownloader(object):
-    def __init__(self, url_list, num):
-        pass
+AUDIO_URL_TEPMLATE = "http://media.rozhlas.cz/_audio/{}.mp3"
+
+
+def generate_audio_url(audio_id):
+    return AUDIO_URL_TEPMLATE.format(audio_id)
+

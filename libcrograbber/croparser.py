@@ -43,19 +43,35 @@ def subpage_urls(subpage_url, page_soup):
     ]
     splitted = parse.urlsplit(subpage_url)
     return [
-        parse.urlunsplit((splitted.scheme, splitted.netloc, splitted.path, item, splitted.fragment)) for item in pages
-        ]
+        parse.urlunsplit((splitted.scheme, splitted.netloc, splitted.path, item, splitted.fragment)) for item in pages]
 
 
-def parse_audio_ids(article_url):
+def parse_audio_ids(article_soup):
     # Returns list of audio IDs for article URL
-    article_soup = bs(request.urlopen(article_url).read(), "lxml").find(id="article")
     single_play = article_soup.select("a.icon.player-archive")
     if single_play:
         result = [single_play[0]["href"].split("/")[-1]]
     else:
         result = [subplayer.select("div.uniplayer")[0]["data-id"] for subplayer in article_soup.select("div.audio")]
     return result
+
+
+def parse_article_description(article_soup):
+    pars = article_soup.find_all("p")
+    good_pars = [par for par in pars if not par.attrs]
+    description = ""
+    for item in good_pars:
+        description = description + item.text
+    return description
+
+
+def process_article(article_url):
+    article_data = {}
+    article_soup = bs(request.urlopen(article_url).read(), "lxml").find(id="article")
+    article_data["audio_ids"] = parse_audio_ids(article_soup)
+    article_data["name"] = article_soup.h1.text
+    article_data["description"] = parse_article_description(article_soup)
+    return article_data
 
 
 if __name__ == "__main__":
