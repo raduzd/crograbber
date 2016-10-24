@@ -44,8 +44,12 @@ def main():
     else:
         articles = [process_article(argparser.url)]
     if argparser.download:
-        for article in articles:
+    for article in articles:
+        if argparse.download:
             url_downloader.download_audio_for_article(article)
+        else:
+            for audio_id in article.audio_ids:
+                print(url_downloader.generate_audio_url(audio_id)
 
 
 if __name__ == "__main__":
