@@ -59,9 +59,9 @@ def parse_audio_ids(article_soup):
 def parse_article_description(article_soup):
     pars = article_soup.find_all("p")
     good_pars = [par for par in pars if not par.attrs]
-    description = ""
+    description = []
     for item in good_pars:
-        description = description + item.text.strip()
+        description.append(item.text.strip() + "\n")
     return description
 
 
