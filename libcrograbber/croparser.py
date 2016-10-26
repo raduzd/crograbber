@@ -5,12 +5,13 @@ __author__ = 'raduz'
 from bs4 import BeautifulSoup as bs
 from urllib import request
 from urllib import parse
-
+import logging
 
 def parse_master_page(master_url):
     # Process master page (http://www.rozhlas.cz/vltava/stream/), to get all URL of category subpages
     master_soup = bs(request.urlopen(master_url).read(), "lxml")
     suburls = [item.get("href") for item in master_soup.select("div.lista-promo")[0].find_all("a")]
+    logging.debug("Number of suburl:".format(len(suburls)))
     parsed_master_url = parse.urlparse(master_url)
     base_url = "{uri.scheme}://{uri.netloc}".format(uri=parsed_master_url)
     return [parse.urljoin(base_url, item) for item in suburls]
@@ -66,6 +67,7 @@ def parse_article_description(article_soup):
 
 
 def process_article(article_url):
+    logging.debug("Current article URL: {}".format(article_url))
     article_data = {}
     article_soup = bs(request.urlopen(article_url).read(), "lxml").find(id="article")
     article_data["audio_ids"] = parse_audio_ids(article_soup)

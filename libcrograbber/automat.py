@@ -6,6 +6,7 @@ from libcrograbber import url_downloader
 import dbm
 import os.path
 import os
+import re
 
 
 def load_db(db_location):
@@ -21,3 +22,21 @@ def audio_was_downloaded(audio_id, db):
 
 def mark_audio_as_downloaded(audio_id, db):
     db[audio_id] = ""
+
+
+def detect_series(article_name):
+    result = ""
+    searched = re.match(".*(?=\s\(\s?\d*\/\d*\s?\))", article_name)
+    if searched:
+        result = searched.group()
+    return result
+
+
+def detect_episode_number(article_name):
+    result = 0
+    ep_number = re.search("(?<=.\s\()\d*(?=\/\d*\))", article_name)
+    if ep_number:
+        result = int(ep_number.group())
+    return result
+
+

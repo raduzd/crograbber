@@ -9,6 +9,9 @@ import argparse
 import os.path
 import sys
 from itertools import filterfalse
+import logging
+
+DEFAULT_CFG_DIR = "~/.crograbber"
 
 def create_arg_parser():
     argparser = argparse.ArgumentParser(description="Audio grabber for Cesky Rozhlas (Czech Radio)")
@@ -24,55 +27,77 @@ def create_arg_parser():
                            help="Download resulting audio URLs. Normally audio URL are only displayed")
     argparser.add_argument("--directory", "-d", help="Directory for saving downloaded files", default="./")
     argparser.add_argument("--fullauto", help="Fully automatic mode - use with caution", action="store_true")
-    argparser.add_argument("--db", help="Download history location", default="~/.crograbber/history.db")
-    argparser.add_argument("--use-subdirs", "-c", help="Creater a subdirectory for every downloaded article")
+    argparser.add_argument("--db", help="Download history location", default=os.path.join(DEFAULT_CFG_DIR,"history.db"))
+    argparser.add_argument("--debug", help="Enable debuging messages", action="store_true")
     return argparser.parse_args()
 
 
 def process_master_page(url):
+    logging.debug("Processing master page {}".format(url))
     sub_pages = croparser.parse_master_page(url)
-    return [process_sub_page(sub_page) for sub_page in sub_pages]
-
+    articles = []
+    for item in sub_pages:
+        articles.extend(process_sub_page(item))
+    # return [process_sub_page(sub_page) for sub_page in sub_pages]
+    return articles
 
 def process_sub_page(url):
+    logging.debug("Processing subpage {}".format(url))
     articles = croparser.process_subpage(url)
     return [process_article(article) for article in articles]
 
 
 def process_article(url):
+    logging.debug("Processing article {}".format(url))
     return croparser.process_article(url)
 
 
-def do_full_auto(url, argparser):
-    db = automat.load_db(argparser.db)
-    real_path = os.path.expanduser(argparser.directory)
-    articles = process_master_page(url)
-    if not os.path.exists(real_path) and argparser.download:
-        raise FileNotFoundError("Target directory doesn't exist.")
-    for article in articles:
-        article["audio_ids"] = filterfalse(lambda audio_id: audio_id in db, article["audio_ids"])
-        series = automat.detect_series(article["name"])
-        if series:
-            url_downloader.download_audio_for_article(article, os.path.join(real_path, series), True)
+def do_full_auto(articles, argparser, real_path):
+    with automat.load_db(os.path.expanduser(argparser.db)) as db:
+        for article in articles:
+            article["audio_ids"] = list(filterfalse(lambda audio_id: audio_id in db, article["audio_ids"]))
+            series = automat.detect_series(article["name"])
+            if series:
+                url_downloader.download_audio_for_article(article, os.path.join(real_path, series), fullauto=True)
+                # print("Doing series download: article: {article}, real_path: {real_path}".format(article=article, real_path=os.path.join(real_path, series)))
+            else:
+                url_downloader.download_audio_for_article(article, real_path, fullauto=True)
+                # print("Doing single download: article: {article}, real_path: {real_path}".format(article=article, real_path=real_path))
 
-def main():
-    argparser = create_arg_parser()
-    if argparser.masterpage:
-        articles = process_master_page(argparser.url)
-    elif argparser.subpage:
-        articles = process_sub_page(argparser.url)
-    else:
-        articles = [process_article(argparser.url)]
-        real_path = os.path.expanduser(argparser.directory)
-        if not os.path.exists(real_path) and argparser.download:
-            raise FileNotFoundError("Target directory doesn't exist.")
+            for item in article["audio_ids"]:
+                db[item]=""
 
+
+def do_manual_mode(articles, argparser, real_path):
     for article in articles:
         if argparser.download:
             url_downloader.download_audio_for_article(article, real_path)
         else:
             for audio_id in article["audio_ids"]:
                 print(url_downloader.generate_audio_url(audio_id))
+
+
+def main():
+    argparser = create_arg_parser()
+    if argparser.debug:
+        logging.basicConfig(filename='crograbber.log',level=logging.DEBUG)
+    if not os.path.exists(os.path.expanduser(DEFAULT_CFG_DIR)):
+        os.makedirs(DEFAULT_CFG_DIR)
+    if argparser.masterpage:
+        articles = process_master_page(argparser.url)
+    elif argparser.subpage:
+        articles = process_sub_page(argparser.url)
+    else:
+        articles = [process_article(argparser.url)]
+    real_path = os.path.expanduser(argparser.directory)
+    if not os.path.exists(real_path) and argparser.download:
+        raise FileNotFoundError("Target directory doesn't exist.")
+
+    if argparser.fullauto:
+        do_full_auto(articles, argparser, real_path)
+    else:
+        do_manual_mode(articles, argparser, real_path)
+
 
 
 if __name__ == "__main__":
