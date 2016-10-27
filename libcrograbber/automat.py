@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raduz'
 
-from libcrograbber import url_downloader
 import dbm
 import os.path
 import os
 import re
+import logging
 
 
 def load_db(db_location):

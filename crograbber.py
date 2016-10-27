@@ -56,7 +56,7 @@ def do_full_auto(articles, argparser, real_path):
     with automat.load_db(os.path.expanduser(argparser.db)) as db:
         for article in articles:
             logging.debug("Article name: {}, article audio_ids: {}".format(article["name"], article["audio_ids"]))
-            article["audio_ids"] = list(filterfalse(lambda audio_id: audio_id in db, article["audio_ids"]))
+            article["audio_ids"] = list(filterfalse(lambda audio_id: db.get(audio_id, "")=="1", article["audio_ids"]))
             series = automat.detect_series(article["name"])
             if series:
                 url_downloader.download_audio_for_article(article, os.path.join(real_path, series), fullauto=True)
@@ -66,7 +66,7 @@ def do_full_auto(articles, argparser, real_path):
                 # print("Doing single download: article: {article}, real_path: {real_path}".format(article=article, real_path=real_path))
 
             for item in article["audio_ids"]:
-                db[item]=""
+                db[item]="1"
 
 
 def do_manual_mode(articles, argparser, real_path):
