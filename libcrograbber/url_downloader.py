@@ -6,7 +6,7 @@ import pycurl
 import os.path
 import sys
 from progressbar import ProgressBar, FileTransferSpeed, Bar, Percentage, Counter,DataSize, AdaptiveETA, AdaptiveTransferSpeed, SimpleProgress, DataTransferBar
-from crograbber import automat
+from libcrograbber import automat
 import logging
 
 AUDIO_URL_TEPMLATE = "http://media.rozhlas.cz/_audio/{}.mp3"

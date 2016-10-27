@@ -27,7 +27,7 @@ def create_arg_parser():
                            help="Download resulting audio URLs. Normally audio URL are only displayed")
     argparser.add_argument("--directory", "-d", help="Directory for saving downloaded files", default="./")
     argparser.add_argument("--fullauto", help="Fully automatic mode - use with caution", action="store_true")
-    argparser.add_argument("--db", help="Download history location", default=os.path.join(DEFAULT_CFG_DIR,"history.db"))
+    argparser.add_argument("--db", help="Download history location", default=os.path.join(DEFAULT_CFG_DIR,"history"))
     argparser.add_argument("--debug", help="Enable debuging messages", action="store_true")
     return argparser.parse_args()
 
@@ -55,6 +55,7 @@ def process_article(url):
 def do_full_auto(articles, argparser, real_path):
     with automat.load_db(os.path.expanduser(argparser.db)) as db:
         for article in articles:
+            logging.debug("Article name: {}, article audio_ids: {}".format(article["name"], article["audio_ids"]))
             article["audio_ids"] = list(filterfalse(lambda audio_id: audio_id in db, article["audio_ids"]))
             series = automat.detect_series(article["name"])
             if series:
