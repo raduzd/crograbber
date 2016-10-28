@@ -55,15 +55,16 @@ def process_article(url):
 def do_full_auto(articles, argparser, real_path):
     with automat.load_db(os.path.expanduser(argparser.db)) as db:
         for article in articles:
+
+            starter = int(automat.detect_episode_number(article["name"]))
             logging.debug("Article name: {}, article audio_ids: {}".format(article["name"], article["audio_ids"]))
             article["audio_ids"] = list(filterfalse(lambda audio_id: db.get(audio_id, "")==b"1", article["audio_ids"]))
             series = automat.detect_series(article["name"])
             if series:
-                url_downloader.download_audio_for_article(article, os.path.join(real_path, series), fullauto=True)
-                # print("Doing series download: article: {article}, real_path: {real_path}".format(article=article, real_path=os.path.join(real_path, series)))
+                url_downloader.write_description(article, )
+                url_downloader.download_audio_for_article(article, os.path.join(real_path, series), starter, fullauto=True)
             else:
-                url_downloader.download_audio_for_article(article, real_path, fullauto=True)
-                # print("Doing single download: article: {article}, real_path: {real_path}".format(article=article, real_path=real_path))
+                url_downloader.download_audio_for_article(article, real_path, starter, fullauto=True)
 
             for item in article["audio_ids"]:
                 db[item]="1"
@@ -71,8 +72,9 @@ def do_full_auto(articles, argparser, real_path):
 
 def do_manual_mode(articles, argparser, real_path):
     for article in articles:
+        starter = 0 if len(article["audio_ids"]) == 1 else 1
         if argparser.download:
-            url_downloader.download_audio_for_article(article, real_path)
+            url_downloader.download_audio_for_article(article, starter, real_path)
         else:
             for audio_id in article["audio_ids"]:
                 print(url_downloader.generate_audio_url(audio_id))
