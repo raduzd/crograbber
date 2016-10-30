@@ -11,7 +11,7 @@ import logging
 
 AUDIO_URL_TEPMLATE = "http://media.rozhlas.cz/_audio/{}.mp3"
 SINGLE_PLAY_TEMPLATE = "{name}.mp3"
-MULTI_PLAY_TEMPLATE = "{name} - {number}.mp3"
+MULTI_PLAY_TEMPLATE = "{name} - {number:0{width}}.mp3"
 DESCRIPTION_FILENAME_TEMPLATE = "{}.txt"
 
 
@@ -20,7 +20,6 @@ def generate_audio_url(audio_id):
 
 
 def download_audio_for_article(article, base_path, starter, fullauto=False):
-    os.makedirs(base_path, exist_ok=True)
     # if fullauto:
     #     starter = int(automat.detect_episode_number(article["name"]))
     # else:
@@ -54,10 +53,15 @@ def run_download(audio_url, filename, fullauto=False):
         c.close()
 
 
-def write_description(article, base_file_name):
-    filename = DESCRIPTION_FILENAME_TEMPLATE.format(base_file_name)
-    with open(filename, "w") as target:
-        target.writelines(article["description"])
+def write_description(article, base_file_name, series=None):
+    if series:
+        full_filename = os.path.join(base_file_name, os.path.split(base_file_name)[1])
+        filename = DESCRIPTION_FILENAME_TEMPLATE.format(full_filename)
+    else:
+        filename = DESCRIPTION_FILENAME_TEMPLATE.format(base_file_name)
+    if not os.path.exists(filename):
+        with open(filename, "w") as target:
+            target.writelines(article["description"])
 
 
 def generate_file_name_base(article):
@@ -69,7 +73,16 @@ def generate_file_name_base(article):
 def generate_audio_file_name(file_name_base, number, original_length=1):
     name = ""
     if number > 0 and original_length > 1:
-        name = MULTI_PLAY_TEMPLATE.format(name=file_name_base,number=number)
+        width = get_number_width(original_length)
+        name = MULTI_PLAY_TEMPLATE.format(name=file_name_base,number=number,width=width)
     else:
         name = SINGLE_PLAY_TEMPLATE.format(name=file_name_base)
     return name
+
+
+def get_number_width(number):
+    counter = 0
+    while number > 0:
+        number = number // 10
+        counter += 1
+    return counter

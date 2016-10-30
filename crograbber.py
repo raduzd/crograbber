@@ -55,15 +55,20 @@ def process_article(url):
 def do_full_auto(articles, argparser, real_path):
     with automat.load_db(os.path.expanduser(argparser.db)) as db:
         for article in articles:
-
-            starter = int(automat.detect_episode_number(article["name"]))
             logging.debug("Article name: {}, article audio_ids: {}".format(article["name"], article["audio_ids"]))
             article["audio_ids"] = list(filterfalse(lambda audio_id: db.get(audio_id, "")==b"1", article["audio_ids"]))
             series = automat.detect_series(article["name"])
             if series:
-                url_downloader.write_description(article, )
-                url_downloader.download_audio_for_article(article, os.path.join(real_path, series), starter, fullauto=True)
+                starter = int(automat.detect_episode_number(article["name"]))
+                series_path = os.path.join(real_path, series)
+                os.makedirs(series_path, exist_ok=True)
+                url_downloader.write_description(article, series_path, series)
+                url_downloader.download_audio_for_article(article, series_path, starter, fullauto=True)
             else:
+                starter = 1 if len(article["audio_ids"]) > 1 else 0
+                desc_path = os.path.join(real_path, article["name"])
+                os.makedirs(real_path, exist_ok=True)
+                url_downloader.write_description(article, desc_path, series)
                 url_downloader.download_audio_for_article(article, real_path, starter, fullauto=True)
 
             for item in article["audio_ids"]:
@@ -74,7 +79,9 @@ def do_manual_mode(articles, argparser, real_path):
     for article in articles:
         starter = 0 if len(article["audio_ids"]) == 1 else 1
         if argparser.download:
-            url_downloader.download_audio_for_article(article, starter, real_path)
+            desc_path = os.path.join(real_path, article["name"])
+            url_downloader.write_description(article, desc_path)
+            url_downloader.download_audio_for_article(article, real_path, starter)
         else:
             for audio_id in article["audio_ids"]:
                 print(url_downloader.generate_audio_url(audio_id))
