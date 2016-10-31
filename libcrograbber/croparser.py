@@ -7,6 +7,7 @@ from urllib import request
 from urllib import parse
 import logging
 
+
 def parse_master_page(master_url):
     # Process master page (http://www.rozhlas.cz/vltava/stream/), to get all URL of category subpages
     master_soup = bs(request.urlopen(master_url).read(), "lxml")

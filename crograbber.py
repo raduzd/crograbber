@@ -13,6 +13,7 @@ import logging
 
 DEFAULT_CFG_DIR = "~/.crograbber"
 
+
 def create_arg_parser():
     argparser = argparse.ArgumentParser(description="Audio grabber for Cesky Rozhlas (Czech Radio)")
     group_type = argparser.add_mutually_exclusive_group()
@@ -27,7 +28,7 @@ def create_arg_parser():
                            help="Download resulting audio URLs. Normally audio URL are only displayed")
     argparser.add_argument("--directory", "-d", help="Directory for saving downloaded files", default="./")
     argparser.add_argument("--fullauto", help="Fully automatic mode - use with caution", action="store_true")
-    argparser.add_argument("--db", help="Download history location", default=os.path.join(DEFAULT_CFG_DIR,"history"))
+    argparser.add_argument("--db", help="Download history location", default=os.path.join(DEFAULT_CFG_DIR, "history"))
     argparser.add_argument("--debug", help="Enable debuging messages", action="store_true")
     return argparser.parse_args()
 
@@ -40,6 +41,7 @@ def process_master_page(url):
         articles.extend(process_sub_page(item))
     # return [process_sub_page(sub_page) for sub_page in sub_pages]
     return articles
+
 
 def process_sub_page(url):
     logging.debug("Processing subpage {}".format(url))
@@ -56,7 +58,8 @@ def do_full_auto(articles, argparser, real_path):
     with automat.load_db(os.path.expanduser(argparser.db)) as db:
         for article in articles:
             logging.debug("Article name: {}, article audio_ids: {}".format(article["name"], article["audio_ids"]))
-            article["audio_ids"] = list(filterfalse(lambda audio_id: db.get(audio_id, "")==b"1", article["audio_ids"]))
+            article["audio_ids"] = list(
+                filterfalse(lambda audio_id: db.get(audio_id, "") == b"1", article["audio_ids"]))
             series = automat.detect_series(article["name"])
             if series:
                 starter = int(automat.detect_episode_number(article["name"]))
@@ -72,7 +75,7 @@ def do_full_auto(articles, argparser, real_path):
                 url_downloader.download_audio_for_article(article, real_path, starter, fullauto=True)
 
             for item in article["audio_ids"]:
-                db[item]="1"
+                db[item] = "1"
 
 
 def do_manual_mode(articles, argparser, real_path):
@@ -90,7 +93,7 @@ def do_manual_mode(articles, argparser, real_path):
 def main():
     argparser = create_arg_parser()
     if argparser.debug:
-        logging.basicConfig(filename='crograbber.log',level=logging.DEBUG)
+        logging.basicConfig(filename='crograbber.log', level=logging.DEBUG)
     if not os.path.exists(os.path.expanduser(DEFAULT_CFG_DIR)):
         os.makedirs(DEFAULT_CFG_DIR)
     if argparser.masterpage:
@@ -107,7 +110,6 @@ def main():
         do_full_auto(articles, argparser, real_path)
     else:
         do_manual_mode(articles, argparser, real_path)
-
 
 
 if __name__ == "__main__":

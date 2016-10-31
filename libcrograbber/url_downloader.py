@@ -4,8 +4,8 @@ __author__ = 'raduz'
 
 import pycurl
 import os.path
-import sys
-from progressbar import ProgressBar, FileTransferSpeed, Bar, Percentage, Counter,DataSize, AdaptiveETA, AdaptiveTransferSpeed, SimpleProgress, DataTransferBar
+from progressbar import ProgressBar, FileTransferSpeed, Bar, Percentage, Counter, DataSize, AdaptiveETA, \
+    AdaptiveTransferSpeed, SimpleProgress, DataTransferBar
 from libcrograbber import automat
 import logging
 
@@ -24,9 +24,9 @@ def download_audio_for_article(article, base_path, starter, fullauto=False):
     #     starter = int(automat.detect_episode_number(article["name"]))
     # else:
     #     starter = 0 if len(article["audio_ids"]) == 1 else 1
-    base_file_name = os.path.join(base_path,generate_file_name_base(article))
+    base_file_name = os.path.join(base_path, generate_file_name_base(article))
     for item in enumerate(article["audio_ids"], starter):
-        output_file_name = generate_audio_file_name(base_file_name, item[0],original_length=len(article["audio_ids"]) )
+        output_file_name = generate_audio_file_name(base_file_name, item[0], original_length=len(article["audio_ids"]))
         logging.debug("Current article name: {}".format(article["name"]))
         logging.debug("Target filename: {}".format(output_file_name))
         run_download(generate_audio_url(item[1]), output_file_name, fullauto)
@@ -34,14 +34,15 @@ def download_audio_for_article(article, base_path, starter, fullauto=False):
 
 def run_download(audio_url, filename, fullauto=False):
     print("Downloading {} to {}".format(audio_url, filename))
-    pbar = ProgressBar(widgets=['(',SimpleProgress(),')',
-                                                              Bar(), ' ',
-                                                              AdaptiveTransferSpeed(), ' ',
-                                                              AdaptiveETA() ]).start()
+    pbar = ProgressBar(widgets=['(', SimpleProgress(), ')',
+                                Bar(), ' ',
+                                AdaptiveTransferSpeed(), ' ',
+                                AdaptiveETA()]).start()
     with open(filename, "wb") as target:
         def progress_local(download_total, downloaded, upload_total, uploaded):
-            pbar.max_value=download_total
+            pbar.max_value = download_total
             pbar.update(downloaded)
+
         c = pycurl.Curl()
         c.setopt(pycurl.FOLLOWLOCATION, True)
         c.setopt(pycurl.URL, audio_url)
@@ -66,7 +67,7 @@ def write_description(article, base_file_name, series=None):
 
 def generate_file_name_base(article):
     raw_name = article["name"]
-    raw_name = raw_name.replace("/"," z ")
+    raw_name = raw_name.replace("/", " z ")
     return raw_name
 
 
@@ -74,7 +75,7 @@ def generate_audio_file_name(file_name_base, number, original_length=1):
     name = ""
     if number > 0 and original_length > 1:
         width = get_number_width(original_length)
-        name = MULTI_PLAY_TEMPLATE.format(name=file_name_base,number=number,width=width)
+        name = MULTI_PLAY_TEMPLATE.format(name=file_name_base, number=number, width=width)
     else:
         name = SINGLE_PLAY_TEMPLATE.format(name=file_name_base)
     return name
@@ -83,6 +84,6 @@ def generate_audio_file_name(file_name_base, number, original_length=1):
 def get_number_width(number):
     counter = 0
     while number > 0:
-        number = number // 10
+        number //= 10
         counter += 1
     return counter
