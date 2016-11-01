@@ -65,13 +65,15 @@ def do_full_auto(articles, argparser, real_path):
                 starter = int(automat.detect_episode_number(article["name"]))
                 series_path = os.path.join(real_path, series)
                 os.makedirs(series_path, exist_ok=True)
-                url_downloader.write_description(article, series_path, series)
+                if len(article["audio_ids"]):
+                    url_downloader.write_description(article, series_path, series)
                 url_downloader.download_audio_for_article(article, series_path, starter, fullauto=True)
             else:
                 starter = 1 if len(article["audio_ids"]) > 1 else 0
                 desc_path = os.path.join(real_path, article["name"])
                 os.makedirs(real_path, exist_ok=True)
-                url_downloader.write_description(article, desc_path, series)
+                if len(article["audio_ids"]):
+                    url_downloader.write_description(article, desc_path, series)
                 url_downloader.download_audio_for_article(article, real_path, starter, fullauto=True)
 
             for item in article["audio_ids"]:
