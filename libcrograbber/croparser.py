@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup as bs
 from urllib import request
 from urllib import parse
 import logging
+import platform
+from unidecode import unidecode
+
 
 
 def parse_master_page(master_url):
@@ -73,6 +76,8 @@ def process_article(article_url):
     article_soup = bs(request.urlopen(article_url).read(), "html.parser").find(id="article")
     article_data["audio_ids"] = parse_audio_ids(article_soup)
     article_data["name"] = article_soup.h1.text.strip()
+    if platform.system() == "Windows":
+        article_data["name"] = unidecode(article_data["name"])
     article_data["description"] = parse_article_description(article_soup)
     return article_data
 

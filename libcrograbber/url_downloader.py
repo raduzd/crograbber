@@ -8,6 +8,7 @@ from progressbar import ProgressBar, FileTransferSpeed, Bar, Percentage, Counter
     AdaptiveTransferSpeed, SimpleProgress, DataTransferBar
 from libcrograbber import automat
 import logging
+import platform
 
 AUDIO_URL_TEPMLATE = "http://media.rozhlas.cz/_audio/{}.mp3"
 SINGLE_PLAY_TEMPLATE = "{name}.mp3"
@@ -68,6 +69,8 @@ def write_description(article, base_file_name, series=None):
 def generate_file_name_base(article):
     raw_name = article["name"]
     raw_name = raw_name.replace("/", " z ")
+    if platform.system() == "Windows":
+        raw_name = raw_name.replace(":", " -")
     return raw_name
 
 
