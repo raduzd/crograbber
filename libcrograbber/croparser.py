@@ -10,7 +10,7 @@ import logging
 
 def parse_master_page(master_url):
     # Process master page (http://www.rozhlas.cz/vltava/stream/), to get all URL of category subpages
-    master_soup = bs(request.urlopen(master_url).read(), "lxml")
+    master_soup = bs(request.urlopen(master_url).read(), "html.parser")
     suburls = [item.get("href") for item in master_soup.select("div.lista-promo")[0].find_all("a")]
     logging.debug("Number of suburl:".format(len(suburls)))
     parsed_master_url = parse.urlparse(master_url)
@@ -20,7 +20,7 @@ def parse_master_page(master_url):
 
 def process_subpage(subpage_url, base_url="http://www.rozhlas.cz"):
     # Returns list of URLs for all articles on all subpages. Should return unique URLs only
-    soups = [bs(request.urlopen(subpage_url).read(), "lxml")]
+    soups = [bs(request.urlopen(subpage_url).read(), "html.parser")]
     multipage = soups[0].select("div.lista_nav_middle")
     if multipage:
         soups = [bs(request.urlopen(item).read(), "lxml") for item in subpage_urls(subpage_url, soups[0])]
@@ -70,7 +70,7 @@ def parse_article_description(article_soup):
 def process_article(article_url):
     logging.debug("Current article URL: {}".format(article_url))
     article_data = {}
-    article_soup = bs(request.urlopen(article_url).read(), "lxml").find(id="article")
+    article_soup = bs(request.urlopen(article_url).read(), "html.parser").find(id="article")
     article_data["audio_ids"] = parse_audio_ids(article_soup)
     article_data["name"] = article_soup.h1.text.strip()
     article_data["description"] = parse_article_description(article_soup)
