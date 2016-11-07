@@ -35,7 +35,8 @@ def detect_series(article_name):
 
 def detect_episode_number(article_name):
     result = 0
-    ep_number = re.search("(?<=.\s\()\d*(?=\/\d*\))", article_name)
+    print(article_name)
+    ep_number = re.search("(?<=.\s\()\d*(?=\s?z\s?\d*\))", article_name)
     if ep_number:
         result = int(ep_number.group())
     return result

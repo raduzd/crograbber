@@ -64,6 +64,7 @@ def do_full_auto(articles, argparser, real_path):
             series = automat.detect_series(article["name"])
             if series:
                 starter = int(automat.detect_episode_number(article["name"]))
+                logging.debug("Detected episode number: {}".format(starter))
                 series_path = os.path.join(real_path, series)
                 os.makedirs(series_path, exist_ok=True)
                 if len(article["audio_ids"]):
