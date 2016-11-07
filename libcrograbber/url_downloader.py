@@ -9,6 +9,7 @@ from progressbar import ProgressBar, FileTransferSpeed, Bar, Percentage, Counter
 from libcrograbber import automat
 import logging
 import platform
+from unidecode import unidecode
 
 AUDIO_URL_TEPMLATE = "http://media.rozhlas.cz/_audio/{}.mp3"
 SINGLE_PLAY_TEMPLATE = "{name}.mp3"
@@ -34,7 +35,11 @@ def download_audio_for_article(article, base_path, starter, fullauto=False):
 
 
 def run_download(audio_url, filename, fullauto=False):
-    print("Downloading {} to {}".format(audio_url, filename))
+    output = "Downloading {} to {}"
+    if platform.system() == "Windows":
+        print(output.format(audio_url, unidecode(filename)))
+    else:
+        print(output.format(audio_url, filename))
     pbar = ProgressBar(widgets=['(', SimpleProgress(), ')',
                                 Bar(), ' ',
                                 AdaptiveTransferSpeed(), ' ',
