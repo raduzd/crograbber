@@ -25,7 +25,7 @@ def download_audio_for_article(article, base_path, starter, fullauto=False):
     #     starter = int(automat.detect_episode_number(article["name"]))
     # else:
     #     starter = 0 if len(article["audio_ids"]) == 1 else 1
-    base_file_name = os.path.join(base_path, generate_file_name_base(article))
+    base_file_name = os.path.join(base_path, article["name"])
     for item in enumerate(article["audio_ids"], starter):
         output_file_name = generate_audio_file_name(base_file_name, item[0], original_length=len(article["audio_ids"]))
         logging.debug("Current article name: {}".format(article["name"]))
@@ -64,14 +64,6 @@ def write_description(article, base_file_name, series=None):
     if not os.path.exists(filename):
         with open(filename, encoding="utf-8", mode="w") as target:
             target.writelines(article["description"])
-
-
-def generate_file_name_base(article):
-    raw_name = article["name"]
-    raw_name = raw_name.replace("/", " z ")
-    if platform.system() == "Windows":
-        raw_name = raw_name.replace(":", " -")
-    return raw_name
 
 
 def generate_audio_file_name(file_name_base, number, original_length=1):

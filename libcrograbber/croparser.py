@@ -76,9 +76,9 @@ def process_article(article_url):
     article_soup = bs(request.urlopen(article_url).read(), "html.parser").find(id="article")
     article_data["audio_ids"] = parse_audio_ids(article_soup)
     article_data["name"] = article_soup.h1.text.strip()
-    if platform.system() == "Windows":
+    # if platform.system() == "Windows":
         #article_data["name"] = unidecode(article_data["name"])
-        article_data["name"] = sanitize_article_name(article_data["name"])
+    article_data["name"] = sanitize_article_name(article_data["name"])
     article_data["description"] = parse_article_description(article_soup)
     return article_data
 
