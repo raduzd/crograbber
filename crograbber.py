@@ -11,9 +11,6 @@ import sys
 from itertools import filterfalse
 import logging
 import platform
-if platform.system() == "Windows":
-    import win_unicode_console
-    win_unicode_console.enable()
 
 DEFAULT_CFG_DIR = "~/.crograbber"
 

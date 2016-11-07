@@ -62,7 +62,7 @@ def write_description(article, base_file_name, series=None):
     else:
         filename = DESCRIPTION_FILENAME_TEMPLATE.format(base_file_name)
     if not os.path.exists(filename):
-        with open(filename, "w") as target:
+        with open(filename, encoding="utf-8", mode="w") as target:
             target.writelines(article["description"])
 
 

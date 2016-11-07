@@ -77,9 +77,16 @@ def process_article(article_url):
     article_data["audio_ids"] = parse_audio_ids(article_soup)
     article_data["name"] = article_soup.h1.text.strip()
     if platform.system() == "Windows":
-        article_data["name"] = unidecode(article_data["name"])
+        #article_data["name"] = unidecode(article_data["name"])
+        article_data["name"] = sanitize_article_name(article_data["name"])
     article_data["description"] = parse_article_description(article_soup)
     return article_data
+
+def sanitize_article_name(raw_name):
+    raw_name = raw_name.replace("/", " z ")
+    if platform.system() == "Windows":
+        raw_name = raw_name.replace(":", " -")
+    return raw_name
 
 
 if __name__ == "__main__":

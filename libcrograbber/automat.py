@@ -27,6 +27,7 @@ def mark_audio_as_downloaded(audio_id, db):
 def detect_series(article_name):
     result = ""
     searched = re.match(".*(?=\s\(\s?\d*\/\d*\s?\))", article_name)
+    # searched = re.match(".*(?=\s\(\s?\d*\sz\s\d*\s?\))", article_name)
     if searched:
         result = searched.group()
     return result
