@@ -26,7 +26,7 @@ def process_subpage(subpage_url, base_url="http://www.rozhlas.cz"):
     soups = [bs(request.urlopen(subpage_url).read(), "html.parser")]
     multipage = soups[0].select("div.lista_nav_middle")
     if multipage:
-        soups = [bs(request.urlopen(item).read(), "lxml") for item in subpage_urls(subpage_url, soups[0])]
+        soups = [bs(request.urlopen(item).read(), "html.parser") for item in subpage_urls(subpage_url, soups[0])]
     page_items_urls = []
     for page in soups:
         item_urls = [parse.urljoin(base_url, item) for item in get_page_items(page.select("div.column.column-1")[0])]
